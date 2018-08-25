@@ -1,0 +1,7 @@
+{
+  "plugins": ["lodash"],
+  "presets": [
+    "env",
+    "stage-3"
+  ]
+}
