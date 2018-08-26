@@ -5,7 +5,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 
 module.exports = {
   entry: {
-    'index': [path.resolve('./src/javascripts/entry.js')]
+    'index': [path.resolve('./src/javascripts/entry.ts')]
   },
   output: {
     filename: '[name].js',
@@ -26,6 +26,13 @@ module.exports = {
           postLoaders: {
             js: 'babel-loader'
           }
+        }
+      },
+      {
+        test: /\.ts$/,
+        loader: 'ts-loader',
+        options: {
+          appendTsSuffixTo: [/\.vue$/]
         }
       },
       {
@@ -54,7 +61,7 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.js', '.vue'],
+    extensions: ['.js', '.ts', '.vue'],
     alias: {
       vue$: 'vue/dist/vue.esm.js'
     }

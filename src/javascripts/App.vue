@@ -1,44 +1,68 @@
 <template lang="pug">
 #app
   TodoInputter(
-    :apiStatus="$store.state.todoList.addTodoStatus"
     @submitTodo="onSubmitTodo"
   )
   TodoList(
-    :userId="$store.state.todoList.userId"
-    :todoList="$store.state.todoList.todoList"
+    :todoList="todoList"
     @statusChange="onTodoStatusChange"
     @delete="onTodoDelete"
   )
 </template>
 
-<script>
-import { find } from 'lodash';
-import TodoInputter from './components/TodoInputter';
-import TodoList from './components/TodoList';
-import * as TODO_LIST_ACTIONS from './store/todoList/actions';
+<script lang="ts">
+import Vue from 'vue';
+import uuid from 'uuid';
+import { findIndex } from 'lodash';
+import TodoInputter from './components/TodoInputter.vue';
+import TodoList from './components/TodoList.vue';
 
-export default {
+interface Data {
+  todoList: any
+}
+
+export default Vue.extend({
+  name: 'App',
   components: {
     TodoInputter,
     TodoList
   },
-  beforeCreate() {
-    console.log('init');
-    const promise = this.$store.dispatch(TODO_LIST_ACTIONS.ACTION_FETCH_TODO_LIST);
-    promise
-      .then((response) => {
-        console.log(response);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-    window.setTimeout(() => {
-      promise.cancel();
-    }, 3000);
-  },
-  mounted() {
-    console.log(this.$store.state);
+  data(): Data {
+    const todoList = [
+      {
+        id: uuid(),
+        isDone: true,
+        text: 'todo',
+        deadline: new Date()
+      },
+      {
+        id: uuid(),
+        isDone: false,
+        text: 'todo2',
+        deadline: new Date()
+      },
+      {
+        id: uuid(),
+        isDone: false,
+        text: 'todo3',
+        deadline: new Date()
+      },
+      {
+        id: uuid(),
+        isDone: true,
+        text: 'todo4',
+        deadline: new Date()
+      },
+      {
+        id: uuid(),
+        isDone: false,
+        text: 'todo5',
+        deadline: new Date()
+      }
+    ];
+    return {
+      todoList
+    };
   },
   methods: {
     /**
@@ -46,45 +70,34 @@ export default {
      * @param {{ text: string, deadline: Date}} todo - todo情報
      */
     onSubmitTodo(todo) {
-      this.$store.dispatch(TODO_LIST_ACTIONS.ACTION_REQUEST_ADD_TODO, todo)
-        .then(() => {
-          this.$store.dispatch(TODO_LIST_ACTIONS.ACTION_FETCH_TODO_LIST);
-        });
+      const newTodo = {
+        ...todo,
+        id: uuid(),
+        isDone: false
+      };
+      this.todoList = [newTodo].concat(this.todoList);
     },
     /**
      * todoStatusの切り替え
      * @param {string} todoId - todoId
      */
     onTodoStatusChange(todoId) {
-      const todo = find(this.$store.state.todoList.todoList.payload, { id: todoId });
-      console.log(todo);
-      if (todo) {
-        this.$store.dispatch(TODO_LIST_ACTIONS.ACTION_REQUEST_UPDATE_TODO, {
-          todoId,
-          params: {
-            isDone: !todo.isDone
-          }
-        })
-          .then(() => {
-            this.$store.dispatch(TODO_LIST_ACTIONS.ACTION_FETCH_TODO_LIST);
-          });
-      }
+      console.log(todoId);
+      const index = findIndex(this.todoList, { id: todoId });
+      this.$set(this.todoList, index, {
+        ...this.todoList[index],
+        isDone: !this.todoList[index].isDone
+      });
     },
     /**
      * todoの削除
      * @param {string} todoId - todoId
      */
     onTodoDelete(todoId) {
-      const todo = find(this.$store.state.todoList.todoList.payload, { id: todoId });
-      if (todo) {
-        this.$store.dispatch(TODO_LIST_ACTIONS.ACTION_REQUEST_DELETE_TODO, todoId)
-          .then(() => {
-            this.$store.dispatch(TODO_LIST_ACTIONS.ACTION_FETCH_TODO_LIST);
-          });
-      }
+      this.todoList = this.todoList.filter((todo) => todo.id !== todoId);
     }
   }
-};
+});
 </script>
 
 <style scoped lang="scss">
