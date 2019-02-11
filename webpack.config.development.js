@@ -20,7 +20,7 @@ const config = merge(baseConfig, {
     hot: true,
     inline: true,
     overlay: true,
-    port: 4000
+    port: 5000
   },
   plugins: [
     new webpack.DefinePlugin({
@@ -45,7 +45,7 @@ config.module.rules.push({
     'css-hot-loader',
     // hot-reloadできるようにCSSはextractせずにstyle-loaderを使ってinjectする
     {
-      loader: 'style-loader',
+      loader: 'vue-style-loader',
       options: {
         sourceMap: true
       }
